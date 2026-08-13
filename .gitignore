@@ -1,0 +1,4 @@
+*
+!.gitignore
+!sqlite_FastAPI.py
+!README.md
