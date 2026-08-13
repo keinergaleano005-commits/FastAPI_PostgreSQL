@@ -33,7 +33,7 @@ Los datos se validan automáticamente gracias a Pydantic (si mandas datos con un
 
 1. Clona el repositorio:
 ```bash
-   git clone <url-de-tu-repositorio>
+   git clone <https://github.com/keinergaleano005-commits/FastAPI_SQLITE3.git>
    cd <nombre-de-la-carpeta>
 ```
 
