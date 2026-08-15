@@ -1,7 +1,8 @@
 import sqlite3
 from fastapi import FastAPI
 from pydantic import BaseModel
-conexion = sqlite3.connect("producots.db", check_same_thread=False)
+from fastapi import HTTPException
+conexion = sqlite3.connect("productos.db", check_same_thread=False)
 cursor = conexion.cursor()
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS productos(
@@ -23,12 +24,12 @@ app = FastAPI()
 
 @app.post("/productos")
 def agregar_producto(producto: Producto):
-    cursor.execute("""INSERT INTO productos (nombre , precio , cantidad) VALUES (?,?,?)""", (producto.nombre , producto.precio, producto.cantidad))
-    conexion.commit()
-    return "producto agregado con exito"
-
-
-
+    try:
+        cursor.execute("""INSERT INTO productos (nombre , precio , cantidad) VALUES (?,?,?)""", (producto.nombre , producto.precio, producto.cantidad))
+        conexion.commit()
+        return "producto agregado con exito"
+    except sqlite3.IntegrityError as e:
+        raise HTTPException(status_code=400, detail=f"Error producto duplicado {e}" )
 
 @app.get("/productos")
 def mostrar_productos():
@@ -39,15 +40,25 @@ def mostrar_productos():
 def obetener_producto(nombre: str):
     cursor.execute("""SELECT * FROM productos WHERE nombre = (?)""", (nombre,))
     contenido = cursor.fetchone()
-    return contenido
+    if contenido is None:
+        raise HTTPException(status_code=404, detail="producto no encontrado")
+    else:
+        return contenido
 
 @app.put("/productos/{nombre}")
 def actualizar_producto(nombre: str, producto: Producto):
-    cursor.execute("""UPDATE productos  SET nombre = (?) ,precio = (?), cantidad = (?) WHERE nombre = (?)""", (producto.nombre, producto.precio, producto.cantidad, nombre))
-    conexion.commit()
-    return "producto actualizado con exito"
+    try:
+        cursor.execute("""UPDATE productos  SET nombre = (?) ,precio = (?), cantidad = (?) WHERE nombre = (?)""", (producto.nombre, producto.precio, producto.cantidad, nombre))
+        conexion.commit()
+        return "producto actualizado con exito"
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=400, detail="Nombre de producto duplicado")
 @app.delete("/productos/{nombre}")
 def eliminar_producto(nombre: str):
     cursor.execute("""DELETE FROM productos WHERE nombre = (?)""", (nombre,))
-    conexion.commit()
-    return "producto eliminado con exito"
+    contenido = cursor.rowcount
+    if contenido == 0:
+        raise HTTPException(status_code=404, detail="ese producto no existe")
+    else:
+        conexion.commit()
+        return "producto eliminado con exito"
