@@ -1,4 +1,6 @@
 *
 !.gitignore
-!sqlite3_FastAPI.py
 !README.md
+!db.py
+!routefunctions
+!basemodel
