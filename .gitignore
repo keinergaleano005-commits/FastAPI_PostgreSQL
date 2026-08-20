@@ -4,3 +4,6 @@
 !db.py
 !routefunctions.py
 !basemodel.py
+!pyproject.toml
+!uv.lock
+.env
