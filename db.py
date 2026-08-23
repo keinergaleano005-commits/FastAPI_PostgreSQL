@@ -1,21 +1,26 @@
-import psycopg2
+import psycopg
 
 
 class DataBase:
     def __init__(self, credenciales):
+            self.__credenciales = credenciales
+            self.__conexion = None
+            self.__cursor = None
+
+    async def connect(self):
         try:
-            self.__conexion = psycopg2.connect(**credenciales)
+            self.__conexion = await psycopg.AsyncConnection.connect(**self.__credenciales)
             self.__cursor = self.__conexion.cursor()
-            self.__cursor.execute("""
+            await self.__cursor.execute("""
                 CREATE TABLE IF NOT EXISTS productos(
-                id SERIAL NOT NULL PRIMARY KEY ,
+                id SERIAL NOT NULL PRIMARY KEY,
                 nombre VARCHAR(50) NOT NULL UNIQUE,
-                precio REAL  NOT NULL,
+                precio REAL NOT NULL,
                 cantidad INT NOT NULL
                 )
             """)
-            self.__conexion.commit()
-        except psycopg2.Error as e:
+            await self.__conexion.commit()
+        except psycopg.Error as e:
             print("error del sistema")
             raise
 

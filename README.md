@@ -83,3 +83,5 @@ Uvicorn running on http://127.0.0.1:8000
 Este fue mi primer proyecto real con FastAPI. Empecé con los datos en una lista en memoria y después migré a SQLite para que los datos no se perdieran al reiniciar el servidor — ahí tuve que resolver un error de threads (`check_same_thread`) que no esperaba.
 
 Más adelante separé el proyecto en varios archivos (modelo, base de datos y rutas, cada uno con su propia responsabilidad) y migré de SQLite a PostgreSQL, moviendo las credenciales a un archivo `.env` para no exponerlas en el código. En esa migración tuve que resolver un problema de codificación (`UnicodeDecodeError`) causado por cómo se instaló PostgreSQL en Windows, lo que me llevó a reinstalarlo configurando correctamente el *locale* del clúster.
+
+Después migré la conexión de psycopg2 (síncrono) a psycopg v3, para que la API aproveche async/await de FastAPI en vez de bloquear el event loop en cada consulta a la base de datos. En esa migración tuve que resolver varios errores de sintaxis específicos de la nueva librería (nombres de parámetros distintos, manejo del cursor y las excepciones), apoyándome en la documentación oficial de psycopg.
