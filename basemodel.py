@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Producto(BaseModel):
-    nombre: str
-    precio: float
-    cantidad: int
+    nombre: str = Field(min_length=2, max_length=100)
+    precio: float = Field(gt=0)
+    cantidad: int = Field(ge=0)

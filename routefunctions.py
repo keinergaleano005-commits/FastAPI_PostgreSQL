@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Path, Query
 from basemodel import Producto
 from fastapi import HTTPException
 from db import DataBase
@@ -46,7 +46,7 @@ async def mostrar_productos():
 
 
 @app.get("/productos/{nombre}")
-async def obetener_producto(nombre: str):
+async def obetener_producto(nombre: str = Path(...,min_length=1, description="Nombre del producto")):
     await db.cursor.execute("""SELECT * FROM productos WHERE nombre = (%s)""", (nombre,))
     contenido = await db.cursor.fetchone()
     if contenido is None:
@@ -71,7 +71,7 @@ async def actualizar_producto(nombre: str, producto: Producto):
 
 
 @app.delete("/productos/{nombre}")
-async def eliminar_producto(nombre: str):
+async def eliminar_producto(nombre: str = Path(...,min_length=1, description="Nombre del producto que desea eliminar")):
     await db.cursor.execute("""DELETE FROM productos WHERE nombre = (%s)""", (nombre,))
     contenido = db.cursor.rowcount
     if contenido == 0:
@@ -79,3 +79,4 @@ async def eliminar_producto(nombre: str):
     else:
         await db.conexion.commit()
         return "producto eliminado con exito"
+
