@@ -1,10 +1,12 @@
 from fastapi import FastAPI, Path, Query
-from basemodel import Producto
+from basemodel import Producto, Public_Product
 from fastapi import HTTPException
 from db import DataBase
 import psycopg
 import os
 from dotenv import load_dotenv
+
+
 
 
 load_dotenv()
@@ -45,14 +47,19 @@ async def mostrar_productos():
     return contenido
 
 
-@app.get("/productos/{nombre}")
+@app.get("/productos/{nombre}", response_model=Public_Product)
 async def obetener_producto(nombre: str = Path(...,min_length=1, description="Nombre del producto")):
     await db.cursor.execute("""SELECT * FROM productos WHERE nombre = (%s)""", (nombre,))
     contenido = await db.cursor.fetchone()
     if contenido is None:
         raise HTTPException(status_code=404, detail="producto no encontrado")
     else:
-        return contenido
+        return {
+            "id": contenido[0],
+            "nombre": contenido[1],
+            "precio": contenido[2],
+            "cantidad": contenido[3]
+        }
 
 
 @app.put("/productos/{nombre}")

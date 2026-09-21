@@ -16,7 +16,8 @@ class DataBase:
                 id SERIAL NOT NULL PRIMARY KEY,
                 nombre VARCHAR(50) NOT NULL UNIQUE,
                 precio REAL NOT NULL,
-                cantidad INT NOT NULL
+                cantidad INT NOT NULL,
+                proveedor VARCHAR(100) NOT NULL DEFAULT 'Sin proveedor'
                 )
             """)
             await self.__conexion.commit()
